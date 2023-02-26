@@ -1,21 +1,32 @@
 import random
 
+
 def read_unit():
-    return input('Select unit from your hand: ')
+    return input("Select unit from your hand: ")
+
 
 def read_position():
-    pos = input('Select position to place: ')
-    pos = pos.split(',')
+    pos = input("Select position to place: ")
+    pos = pos.split(",")
     pos = (pos[0], pos[1])
     return pos
+
 
 class Warchest:
     def __init__(self) -> None:
         self.board = Board()
-        self.crow = Player([ControlZone((4, 2), 'control')], {Archer: 3, Berseker: 3}, {'archer': Archer, 'berseker': Berseker})
-        self.wolf = Player([ControlZone((0, 2), 'control')], {Cavalry: 3, Knight: 3}, {'cavalry': Cavalry, 'knight': Knight})
+        self.crow = Player(
+            [ControlZone((4, 2), "control")],
+            {Archer: 3, Berseker: 3},
+            {"archer": Archer, "berseker": Berseker},
+        )
+        self.wolf = Player(
+            [ControlZone((0, 2), "control")],
+            {Cavalry: 3, Knight: 3},
+            {"cavalry": Cavalry, "knight": Knight},
+        )
         self.current_player = self.decide_first_player()
-    
+
     def decide_first_player(self):
         self.current_player = random.choice((self.crow, self.wolf))
 
@@ -36,20 +47,23 @@ class Warchest:
             # Do movement
             # Change current player
 
-
     def is_ended(self):
-        #TODO: Check if game has finished
+        # TODO: Check if game has finished
         pass
+
 
 class Board:
     def __init__(self) -> None:
-        self.board = ['.'*5]*5
+        self.board = ["." * 5] * 5
         self.pieces = []
+
 
 class Player:
     def __init__(self, units, bag, units_dict) -> None:
-        self.units = units # Inside this list --> tuple (Type of unit, Position of unit)
-        self.bag = {} # Unit: n_units
+        self.units = (
+            units  # Inside this list --> tuple (Type of unit, Position of unit)
+        )
+        self.bag = {}  # Unit: n_units
         self.bag = bag
         self.units_dict = units_dict
         self.has_initiative = False
@@ -68,19 +82,19 @@ class Player:
 
     def turn(self):
         # Read movement
-        movement = input('Place/Control/Move/Recruit/Attack/Initiative')
+        movement = input("Place/Control/Move/Recruit/Attack/Initiative")
         movement = movement.lower()
-        if movement == 'place':
+        if movement == "place":
             self.place()
-        if movement == 'control':
+        if movement == "control":
             self.control()
-        if movement == 'move':
+        if movement == "move":
             self.move()
-        if movement == 'recruit':
+        if movement == "recruit":
             self.recruit()
-        if movement == 'attack':
+        if movement == "attack":
             self.attack()
-        if movement == 'initiative':
+        if movement == "initiative":
             self.initiative()
         # Check if posible
         # Do movement
@@ -91,13 +105,12 @@ class Player:
         # TODO: Loop until unit in hand
         pos = read_position()
         for unit in self.units:
-            if unit.name == 'control':
+            if unit.name == "control":
                 if unit.is_close(pos):
                     # Set piece in board
                     unit_class = self.units_dict[unit.lower()(pos)]
                     self.units.append(unit_class)
                     self.hand.remove(unit)
-
 
     def control(self):
         # Unit to discard
@@ -142,7 +155,6 @@ class Player:
         # Set initiative
         self.initiative = True
 
-
     def check_if_unit_in_hand(self, unit):
         if unit in self.hand:
             return True
@@ -160,42 +172,56 @@ class Player:
         self.units.append(unit_class)
         self.control_token -= 1
 
+
 class Unit:
     def __init__(self, pos, name) -> None:
         self.pos = pos
         self.name = name
 
     def is_close(self, pos2, max_dif=1):
-        if self.pos[0] + max_dif == pos2[0] or self.pos[0] - max_dif == pos2[0] and self.pos[1] == pos2[1]:
+        if (
+            self.pos[0] + max_dif == pos2[0]
+            or self.pos[0] - max_dif == pos2[0]
+            and self.pos[1] == pos2[1]
+        ):
             return True
-        if self.pos[1] + max_dif == pos2[1] or self.pos[1] - max_dif == pos2[1] and self.pos[0] == pos2[0]:
+        if (
+            self.pos[1] + max_dif == pos2[1]
+            or self.pos[1] - max_dif == pos2[1]
+            and self.pos[0] == pos2[0]
+        ):
             return True
         return False
 
     def set_pos(self, pos):
         self.pos = pos
 
+
 class ControlZone(Unit):
     def __init__(self, pos, name) -> None:
         super().__init__(pos, name)
+
 
 class Archer(Unit):
     def __init__(self, pos, name):
         super().__init__(pos, name)
 
+
 class Berseker(Unit):
     def __init__(self, pos, name):
         super().__init__(pos, name)
 
+
 class Cavalry(Unit):
     def __init__(self, pos, name):
         super().__init__(pos, name)
+
 
 class Knight(Unit):
     def __init__(self, pos, name):
         super().__init__(pos, name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     board = Board()
     board.print_board()
