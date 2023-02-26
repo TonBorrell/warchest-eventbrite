@@ -16,18 +16,18 @@ class Warchest:
     def __init__(self) -> None:
         self.board = Board()
         self.crow = Player(
-            'crow',
+            "crow",
             [ControlZone((4, 2), "control")],
             {"archer": 3, "berseker": 3},
             {"archer": Archer, "berseker": Berseker},
-            self.board
+            self.board,
         )
         self.wolf = Player(
-            'wolf',
+            "wolf",
             [ControlZone((0, 2), "control")],
             {"cavalry": 3, "knight": 3},
             {"cavalry": Cavalry, "knight": Knight},
-            self.board
+            self.board,
         )
         self.crow.other_player = self.wolf
         self.wolf.other_player = self.crow
@@ -35,7 +35,7 @@ class Warchest:
         self.current_player = self.decide_first_player()
 
     def decide_first_player(self):
-        self.current_player = random.choice((self.crow, self.wolf))
+        return random.choice((self.crow, self.wolf))
 
     def play(self):
         while not self.is_ended():
@@ -64,23 +64,23 @@ class Warchest:
 class Board:
     def __init__(self) -> None:
         self.board = ["." * 5] * 5
-        self.control_areas = [(2, 0), (1, 4), (0, 1), (1, 3), (3, 1), (4, 3)]
-        self.pieces = {} # All unit class
+        self.control_areas = [(2, 0), (2, 4), (0, 1), (1, 3), (3, 1), (4, 3)]
+        self.pieces = {}  # All unit class
 
     def show_board(self):
         for i in range(5):
             for j in range(5):
-                print(self.is_pos_active((i, j)), end=' ')
+                print(self.is_pos_active((j, i)), end=" ")
             print()
 
     def is_pos_active(self, pos):
         if pos in self.control_areas:
-            return '@'
+            return "@"
         for units_list in self.pieces.values():
             for unit in units_list:
                 if unit.pos == pos:
                     return unit.name
-        return '.'
+        return "."
 
 
 class Player:
@@ -111,10 +111,13 @@ class Player:
         for _ in range(3):
             random_choice = random.choice(bag_list)
             self.hand.append(random_choice)
+            self.bag[random_choice] -= 1
 
     def turn(self):
         # Read movement
-        movement = input("Place/Control/Move/Recruit/Attack/Initiative")
+        movement = input(
+            "Make an action (Place/Control/Move/Recruit/Attack/Initiative): "
+        )
         movement = movement.lower()
         if movement == "place":
             self.place()
