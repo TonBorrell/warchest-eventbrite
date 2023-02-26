@@ -22,6 +22,8 @@ class Warchest:
             # Show Control Tokens
             print(self.current_player.control_token)
             # Input movement until no units on hand
+            while self.current_player.hand:
+                self.current_player.turn()
             # Do movement
             # Change current player
 
@@ -53,25 +55,71 @@ class Player:
             random_choice = random.choice(bag_list)
             self.hand.append(random_choice)
 
-class Unit:
-    def __init__(self) -> None:
+    def turn(self):
+        # Read movement
+        movement = input('Place/Control/Move/Recruit/Attack/Initiative')
+        movement = movement.lower()
+        if movement == 'place':
+            self.place()
+        if movement == 'control':
+            self.control()
+        if movement == 'move':
+            self.move()
+        if movement == 'recruit':
+            self.recruit()
+        if movement == 'attack':
+            self.attack()
+        if movement == 'initiative':
+            self.initiative()
+        # Check if posible
+        # Do movement
+
+    def place(self):
         pass
+
+    def control(self):
+        pass
+
+    def move(self):
+        pass
+
+    def recruit(self):
+        pass
+
+    def attack(self):
+        pass
+
+    def initiative(self):
+        pass
+
+    def check_if_unit_in_hand(self, unit):
+        pass
+
+    def check_if_unit_in_control_zone(self, unit):
+        pass
+
+    def check_if_unit_in_bag(self, unit):
+        pass
+
+class Unit:
+    def __init__(self, pos) -> None:
+        pos = self.pos
 
 class Archer(Unit):
-    def __init__(self) -> None:
-        pass
+    def __init__(self, pos):
+        super().__init__(pos)
 
 class Berseker(Unit):
-    def __init__(self) -> None:
-        pass
+    def __init__(self, pos):
+        super().__init__(pos)
 
 class Cavalry(Unit):
-    def __init__(self) -> None:
-        pass
+    def __init__(self, pos):
+        super().__init__(pos)
 
 class Knight(Unit):
-    def __init__(self) -> None:
-        pass
+    def __init__(self, pos):
+        super().__init__(pos)
 
 
 if __name__ == '__main__':
