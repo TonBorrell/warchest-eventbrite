@@ -52,6 +52,7 @@ class Player:
         self.bag = {} # Unit: n_units
         self.bag = bag
         self.units_dict = units_dict
+        self.has_initiative = False
         self.hand = []
         self.discard_pile = []
         self.control_token = 3
@@ -134,7 +135,13 @@ class Player:
         pass
 
     def initiative(self):
-        pass
+        # Use unit
+        unit_to_discard = read_unit()
+        # Delete it from hand
+        self.hand.remove(unit_to_discard)
+        # Set initiative
+        self.initiative = True
+
 
     def check_if_unit_in_hand(self, unit):
         if unit in self.hand:
