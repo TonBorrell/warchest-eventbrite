@@ -16,14 +16,18 @@ class Warchest:
     def __init__(self) -> None:
         self.board = Board()
         self.crow = Player(
+            'crow',
             [ControlZone((4, 2), "control")],
-            {Archer: 3, Berseker: 3},
+            {"archer": 3, "berseker": 3},
             {"archer": Archer, "berseker": Berseker},
+            self.board
         )
         self.wolf = Player(
+            'wolf',
             [ControlZone((0, 2), "control")],
             {"cavalry": 3, "knight": 3},
             {"cavalry": Cavalry, "knight": Knight},
+            self.board
         )
         self.crow.other_player = self.wolf
         self.wolf.other_player = self.crow
@@ -37,6 +41,7 @@ class Warchest:
         while not self.is_ended():
             # TODO: Check if initiative
             # Show board
+            self.board.show_board()
             # Create Hand
             self.current_player.create_hand()
             # Show Hand, Recruitment units, Discard pile
@@ -59,11 +64,28 @@ class Warchest:
 class Board:
     def __init__(self) -> None:
         self.board = ["." * 5] * 5
-        self.pieces = []
+        self.control_areas = [(2, 0), (1, 4), (0, 1), (1, 3), (3, 1), (4, 3)]
+        self.pieces = {} # All unit class
+
+    def show_board(self):
+        for i in range(5):
+            for j in range(5):
+                print(self.is_pos_active((i, j)), end=' ')
+            print()
+
+    def is_pos_active(self, pos):
+        if pos in self.control_areas:
+            return '@'
+        for units_list in self.pieces.values():
+            for unit in units_list:
+                if unit.pos == pos:
+                    return unit.name
+        return '.'
 
 
 class Player:
-    def __init__(self, units, bag, units_dict) -> None:
+    def __init__(self, name, units, bag, units_dict, board) -> None:
+        self.name = name
         self.units = (
             units  # Inside this list --> tuple (Type of unit, Position of unit)
         )
@@ -75,6 +97,8 @@ class Player:
         self.discard_pile = []
         self.control_token = 3
         self.other_player = None
+        self.board = board
+        self.board.pieces[self.name] = []
 
     def set_other_player(self, other_player):
         self.other_player = other_player
@@ -118,6 +142,7 @@ class Player:
                     # Set piece in board
                     unit_class = self.units_dict[unit.lower()](pos)
                     self.units.append(unit_class)
+                    self.board.pieces[self.name].append(unit_class)
                     self.hand.remove(unit)
 
     def control(self):
@@ -177,7 +202,7 @@ class Player:
                     self.hand.remove(unit_to_attack_with)
                     self.discard_pile.append(unit_to_attack_with)
                     # Remove from game attacked unit
-                    # TODO: Remove other player by checking if match position
+                    # TODO: Remove other player by checking if match position and remove from board
 
     def initiative(self):
         # Use unit
@@ -194,14 +219,21 @@ class Player:
 
     def check_if_pos_in_control_zone(self, pos):
         # TODO: Check if position is in control zone, control zone is a constant in the game
-        pass
+        for control_zone in self.board.control_areas:
+            if pos == control_zone:
+                return True
+        return False
 
     def check_if_unit_in_bag(self, unit):
-        pass
+        if self.bag[unit] > 0:
+            return True
+        else:
+            return False
 
     def control_position(self, pos):
         unit_class = self.units_dict[ControlZone(pos)]
         self.units.append(unit_class)
+        self.board.pieces[self.name].append(unit_class)
         self.control_token -= 1
 
 
@@ -255,5 +287,5 @@ class Knight(Unit):
 
 
 if __name__ == "__main__":
-    board = Board()
-    board.print_board()
+    game = Warchest()
+    game.play()
