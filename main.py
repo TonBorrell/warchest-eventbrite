@@ -34,6 +34,7 @@ class Warchest:
 
         # self.current_player = self.decide_first_player()
         self.current_player = self.crow
+        self.other_player = self.wolf
 
     def decide_first_player(self):
         return random.choice((self.crow, self.wolf))
@@ -56,8 +57,15 @@ class Warchest:
                 self.current_player.turn()
                 self.board.show_board()
                 print(self.current_player.hand)
+                print(self.current_player.discard_pile)
             # Do movement
             # Change current player
+            self.change_player()
+
+    def change_player(self):
+        current = self.current_player
+        self.current_player = self.other_player
+        self.other_player = current
 
     def is_ended(self):
         # TODO: Check if game has finished
@@ -203,10 +211,6 @@ class Player:
         # Remove from hand and put on discard pile
         self.hand.remove(unit_to_discard)
         self.discard_pile.append(unit_to_discard)
-        # Get one from bag
-        for unit in self.bag:
-            if unit_to_discard == unit.name:
-                self.bag[unit] -= 1
 
     def attack(self):
         # Position to attack from
