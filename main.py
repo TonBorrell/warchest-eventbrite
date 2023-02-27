@@ -178,18 +178,18 @@ class Player:
     def move(self):
         # From position
         # TODO: Check if unit in this position
-        pos_initial = read_position()
+        pos_initial = self.read_pos_until_correct(input_message='Select postion to move from: ')
         # Select piece of same type
-        unit_to_discard = read_unit()
-        self.check_if_unit_in_hand(unit)
-        # TODO: Loop until unit in hand
+        unit_to_discard = self.read_unit_until_in_hand()
+        unit_in_initial_pos = self.get_unit_by_pos(pos_initial)
+        if unit_to_discard != unit_in_initial_pos.name:
+            print('Unit selected not in position spectified, restarting the move maneuver')
+            self.move()
         # To position
-        pos_final = read_position()
-        for unit in self.units:
-            if unit.name == unit_to_discard:
-                if unit.isclose(pos_final):
-                    unit.pos = pos_final
-                    self.hand.remove(unit_to_discard)
+        pos_final = self.read_pos_until_correct(input_message='Select postion to move to: ', is_occupied=False)
+        if unit_in_initial_pos.is_close(pos_final, diagonal=True):
+            unit_in_initial_pos.pos = pos_final
+            self.hand.remove(unit_in_initial_pos.name)
 
     def recruit(self):
         # Select unit to recruit
@@ -232,6 +232,28 @@ class Player:
             return True
         return False
 
+    def read_pos_until_correct(self, input_message="Select position to place: ", is_occupied=True): # is_occupied means that position reading is occupied by some unit, True --> Ocuppied
+        if is_occupied:
+            pos_correct = False
+            while not pos_correct:
+                pos = input(input_message)
+                pos = pos.split(',')
+                pos = (int(pos[0]), int(pos[1]))
+                pos_correct = self.check_if_unit_in_pos(pos)
+                if not pos_correct:
+                    print('Position not occupied by any unit')
+        else:
+            pos_correct = False
+            while not pos_correct:
+                pos = input(input_message)
+                pos = pos.split(',')
+                pos = (int(pos[0]), int(pos[1]))
+                pos_correct = self.check_if_unit_not_in_pos(pos)
+                if not pos_correct:
+                    print('Position occupied by a unit')
+        
+        return pos
+
     def check_if_pos_controllable(self, pos):
         is_control_zone = self.check_if_pos_in_control_zone(pos)
         is_pos_occuped = self.check_if_unit_in_pos(pos)
@@ -252,6 +274,12 @@ class Player:
                 return True
         return False
 
+    def check_if_unit_not_in_pos(self, pos):
+        for unit in self.units:
+            if pos == unit.pos:
+                return False
+        return True
+
     def check_if_pos_in_control_zone(self, pos):
         # TODO: Check if position is in control zone, control zone is a constant in the game
         for control_zone in self.board.control_areas:
@@ -265,6 +293,11 @@ class Player:
         else:
             return False
 
+    def get_unit_by_pos(self, pos):
+        for unit in self.units:
+            if unit.pos == pos:
+                return unit
+
     def control_position(self, pos):
         unit_class = ControlZone(pos, 'control')
         self.units.append(unit_class)
@@ -276,7 +309,7 @@ class Unit:
         self.pos = pos
         self.name = name
 
-    def is_close(self, pos2, max_dif=1):
+    def is_close(self, pos2, max_dif=1, diagonal=False):
         pos2 = (int(pos2[0]), int(pos2[1]))
         if (
             self.pos[0] + max_dif == pos2[0]
@@ -290,6 +323,19 @@ class Unit:
             and self.pos[0] == pos2[0]
         ):
             return True
+        if diagonal:
+            if (
+                (
+                    self.pos[0] + max_dif == pos2[0]
+                    or self.pos[0] - max_dif == pos2[0]
+                )
+                and
+                (
+                    self.pos[1] + max_dif == pos2[1]
+                    or self.pos[1] - max_dif == pos2[1]
+                )
+            ):
+                return True
         return False
 
     def set_pos(self, pos):
