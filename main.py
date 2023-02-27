@@ -32,7 +32,7 @@ class Warchest:
         self.crow.other_player = self.wolf
         self.wolf.other_player = self.crow
 
-        #self.current_player = self.decide_first_player()
+        # self.current_player = self.decide_first_player()
         self.current_player = self.crow
 
     def decide_first_player(self):
@@ -141,10 +141,9 @@ class Player:
         unit = None
         while not self.check_if_unit_in_hand(unit):
             if unit is not None:
-                print('Unit not on hand, please select one from your hand of units')
+                print("Unit not on hand, please select one from your hand of units")
             unit = read_unit()
         return unit
-
 
     def place(self):
         unit_to_place = self.read_unit_until_in_hand()
@@ -153,11 +152,12 @@ class Player:
             if unit.name == "control":
                 if unit.is_close(pos):
                     # Set piece in board
-                    unit_class = self.units_dict[unit_to_place.lower()](pos, unit_to_place)
+                    unit_class = self.units_dict[unit_to_place.lower()](
+                        pos, unit_to_place
+                    )
                     self.units.append(unit_class)
                     self.hand.remove(unit_to_place)
                     self.discard_pile.append(unit_to_place)
-
 
     def control(self):
         # Unit to discard
@@ -168,7 +168,7 @@ class Player:
         while not controllable:
             controllable = self.check_if_pos_controllable(pos)
             if not controllable:
-                print('Select a position occupied by you: ')
+                print("Select a position occupied by you: ")
                 pos = read_position()
         # Control
         self.control_position(pos)
@@ -178,15 +178,21 @@ class Player:
     def move(self):
         # From position
         # TODO: Check if unit in this position
-        pos_initial = self.read_pos_until_correct(input_message='Select postion to move from: ')
+        pos_initial = self.read_pos_until_correct(
+            input_message="Select postion to move from: "
+        )
         # Select piece of same type
         unit_to_discard = self.read_unit_until_in_hand()
         unit_in_initial_pos = self.get_unit_by_pos(pos_initial)
         if unit_to_discard != unit_in_initial_pos.name:
-            print('Unit selected not in position spectified, restarting the move maneuver')
+            print(
+                "Unit selected not in position spectified, restarting the move maneuver"
+            )
             self.move()
         # To position
-        pos_final = self.read_pos_until_correct(input_message='Select postion to move to: ', is_occupied=False)
+        pos_final = self.read_pos_until_correct(
+            input_message="Select postion to move to: ", is_occupied=False
+        )
         if unit_in_initial_pos.is_close(pos_final, diagonal=True):
             unit_in_initial_pos.pos = pos_final
             self.hand.remove(unit_in_initial_pos.name)
@@ -232,26 +238,28 @@ class Player:
             return True
         return False
 
-    def read_pos_until_correct(self, input_message="Select position to place: ", is_occupied=True): # is_occupied means that position reading is occupied by some unit, True --> Ocuppied
+    def read_pos_until_correct(
+        self, input_message="Select position to place: ", is_occupied=True
+    ):  # is_occupied means that position reading is occupied by some unit, True --> Ocuppied
         if is_occupied:
             pos_correct = False
             while not pos_correct:
                 pos = input(input_message)
-                pos = pos.split(',')
+                pos = pos.split(",")
                 pos = (int(pos[0]), int(pos[1]))
                 pos_correct = self.check_if_unit_in_pos(pos)
                 if not pos_correct:
-                    print('Position not occupied by any unit')
+                    print("Position not occupied by any unit")
         else:
             pos_correct = False
             while not pos_correct:
                 pos = input(input_message)
-                pos = pos.split(',')
+                pos = pos.split(",")
                 pos = (int(pos[0]), int(pos[1]))
                 pos_correct = self.check_if_unit_not_in_pos(pos)
                 if not pos_correct:
-                    print('Position occupied by a unit')
-        
+                    print("Position occupied by a unit")
+
         return pos
 
     def check_if_pos_controllable(self, pos):
@@ -263,7 +271,7 @@ class Player:
 
     def check_if_pos_controlled(self, pos):
         for unit in self.units:
-            if unit.name == 'control':
+            if unit.name == "control":
                 if unit.pos == pos:
                     return True
         return False
@@ -299,7 +307,7 @@ class Player:
                 return unit
 
     def control_position(self, pos):
-        unit_class = ControlZone(pos, 'control')
+        unit_class = ControlZone(pos, "control")
         self.units.append(unit_class)
         self.control_token -= 1
 
@@ -325,15 +333,9 @@ class Unit:
             return True
         if diagonal:
             if (
-                (
-                    self.pos[0] + max_dif == pos2[0]
-                    or self.pos[0] - max_dif == pos2[0]
-                )
-                and
-                (
-                    self.pos[1] + max_dif == pos2[1]
-                    or self.pos[1] - max_dif == pos2[1]
-                )
+                self.pos[0] + max_dif == pos2[0] or self.pos[0] - max_dif == pos2[0]
+            ) and (
+                self.pos[1] + max_dif == pos2[1] or self.pos[1] - max_dif == pos2[1]
             ):
                 return True
         return False
