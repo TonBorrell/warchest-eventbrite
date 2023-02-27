@@ -161,16 +161,19 @@ class Player:
 
     def control(self):
         # Unit to discard
-        unit = read_unit()
-        self.check_if_unit_in_hand(unit)
-        # TODO: Loop until unit in hand
+        unit = self.read_unit_until_in_hand()
         # Position to control
         pos = read_position()
-        if self.check_if_pos_in_control_zone(pos):
-            # Control
-            self.control_position(pos)
-            # Discard unit
-            self.hand.remove(unit)
+        controllable = False
+        while not controllable:
+            controllable = self.check_if_pos_controllable(pos)
+            if not controllable:
+                print('Select a position occupied by you: ')
+                pos = read_position()
+        # Control
+        self.control_position(pos)
+        # Discard unit
+        self.hand.remove(unit)
 
     def move(self):
         # From position
@@ -190,7 +193,7 @@ class Player:
 
     def recruit(self):
         # Select unit to recruit
-        unit_to_discard = read_unit()
+        unit_to_discard = self.read_unit_until_in_hand()
         # Remove from hand and put on discard pile
         self.hand.remove(unit_to_discard)
         self.discard_pile.append(unit_to_discard)
@@ -203,9 +206,7 @@ class Player:
         # Position to attack from
         pos_initial = read_position()
         # Unit of same type in hand
-        unit_to_attack_with = read_unit()
-        self.check_if_unit_in_hand(unit_to_attack_with)
-        # TODO: Loop until unit in hand
+        unit_to_attack_with = self.read_unit_until_in_hand()
         # To position
         pos_final = read_position()
         # Check if attack is posible
@@ -220,7 +221,7 @@ class Player:
 
     def initiative(self):
         # Use unit
-        unit_to_discard = read_unit()
+        unit_to_discard = self.read_unit_until_in_hand()
         # Delete it from hand
         self.hand.remove(unit_to_discard)
         # Set initiative
@@ -229,6 +230,26 @@ class Player:
     def check_if_unit_in_hand(self, unit):
         if unit in self.hand:
             return True
+        return False
+
+    def check_if_pos_controllable(self, pos):
+        is_control_zone = self.check_if_pos_in_control_zone(pos)
+        is_pos_occuped = self.check_if_unit_in_pos(pos)
+        is_already_controlled = self.check_if_pos_controlled(pos)
+
+        return is_control_zone and is_pos_occuped and not is_already_controlled
+
+    def check_if_pos_controlled(self, pos):
+        for unit in self.units:
+            if unit.name == 'control':
+                if unit.pos == pos:
+                    return True
+        return False
+
+    def check_if_unit_in_pos(self, pos):
+        for unit in self.units:
+            if pos == unit.pos:
+                return True
         return False
 
     def check_if_pos_in_control_zone(self, pos):
@@ -245,7 +266,7 @@ class Player:
             return False
 
     def control_position(self, pos):
-        unit_class = self.units_dict[ControlZone(pos)]
+        unit_class = ControlZone(pos, 'control')
         self.units.append(unit_class)
         self.control_token -= 1
 
