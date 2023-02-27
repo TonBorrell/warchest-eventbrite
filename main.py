@@ -63,9 +63,18 @@ class Warchest:
             self.change_player()
 
     def change_player(self):
-        current = self.current_player
-        self.current_player = self.other_player
-        self.other_player = current
+        if self.other_player.has_initiative:
+            current = self.current_player
+            self.current_player = self.other_player
+            self.other_player = current
+            self.current_player.has_initiative = False
+            self.other_player.has_initiative = False
+        elif self.current_player.has_initiative:
+            self.current_player.has_initiative = False
+        else:
+            current = self.current_player
+            self.current_player = self.other_player
+            self.other_player = current
 
     def is_ended(self):
         # TODO: Check if game has finished
@@ -230,12 +239,16 @@ class Player:
                     # TODO: Remove other player by checking if match position and remove from board
 
     def initiative(self):
-        # Use unit
-        unit_to_discard = self.read_unit_until_in_hand()
-        # Delete it from hand
-        self.hand.remove(unit_to_discard)
-        # Set initiative
-        self.initiative = True
+        if not self.has_initiative:
+            # Use unit
+            unit_to_discard = self.read_unit_until_in_hand()
+            # Delete it from hand
+            self.hand.remove(unit_to_discard)
+            self.discard_pile.append(unit_to_discard)
+            # Set initiative
+            self.has_initiative = True
+        else:
+            print('You already have initiative')
 
     def check_if_unit_in_hand(self, unit):
         if unit in self.hand:
