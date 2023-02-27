@@ -8,7 +8,7 @@ def read_unit():
 def read_position():
     pos = input("Select position to place: ")
     pos = pos.split(",")
-    pos = (pos[0], pos[1])
+    pos = (int(pos[0]), int(pos[1]))
     return pos
 
 
@@ -17,14 +17,14 @@ class Warchest:
         self.board = Board()
         self.crow = Player(
             "crow",
-            [ControlZone((4, 2), "control")],
+            [ControlZone((2, 4), "control")],
             {"archer": 3, "berseker": 3},
             {"archer": Archer, "berseker": Berseker},
             self.board,
         )
         self.wolf = Player(
             "wolf",
-            [ControlZone((0, 2), "control")],
+            [ControlZone((2, 0), "control")],
             {"cavalry": 3, "knight": 3},
             {"cavalry": Cavalry, "knight": Knight},
             self.board,
@@ -32,7 +32,8 @@ class Warchest:
         self.crow.other_player = self.wolf
         self.wolf.other_player = self.crow
 
-        self.current_player = self.decide_first_player()
+        #self.current_player = self.decide_first_player()
+        self.current_player = self.crow
 
     def decide_first_player(self):
         return random.choice((self.crow, self.wolf))
@@ -53,6 +54,8 @@ class Warchest:
             # Input movement until no units on hand
             while self.current_player.hand:
                 self.current_player.turn()
+                self.board.show_board()
+                print(self.current_player.hand)
             # Do movement
             # Change current player
 
@@ -74,12 +77,12 @@ class Board:
             print()
 
     def is_pos_active(self, pos):
-        if pos in self.control_areas:
-            return "@"
         for units_list in self.pieces.values():
             for unit in units_list:
                 if unit.pos == pos:
-                    return unit.name
+                    return unit.name[0].upper()
+        if pos in self.control_areas:
+            return "@"
         return "."
 
 
@@ -98,7 +101,7 @@ class Player:
         self.control_token = 3
         self.other_player = None
         self.board = board
-        self.board.pieces[self.name] = []
+        self.board.pieces[self.name] = units
 
     def set_other_player(self, other_player):
         self.other_player = other_player
@@ -134,19 +137,27 @@ class Player:
         # Check if posible
         # Do movement
 
+    def read_unit_until_in_hand(self):
+        unit = None
+        while not self.check_if_unit_in_hand(unit):
+            if unit is not None:
+                print('Unit not on hand, please select one from your hand of units')
+            unit = read_unit()
+        return unit
+
+
     def place(self):
-        unit = read_unit()
-        self.check_if_unit_in_hand(unit)
-        # TODO: Loop until unit in hand
+        unit_to_place = self.read_unit_until_in_hand()
         pos = read_position()
         for unit in self.units:
             if unit.name == "control":
                 if unit.is_close(pos):
                     # Set piece in board
-                    unit_class = self.units_dict[unit.lower()](pos)
+                    unit_class = self.units_dict[unit_to_place.lower()](pos, unit_to_place)
                     self.units.append(unit_class)
-                    self.board.pieces[self.name].append(unit_class)
-                    self.hand.remove(unit)
+                    self.hand.remove(unit_to_place)
+                    self.discard_pile.append(unit_to_place)
+
 
     def control(self):
         # Unit to discard
@@ -236,7 +247,6 @@ class Player:
     def control_position(self, pos):
         unit_class = self.units_dict[ControlZone(pos)]
         self.units.append(unit_class)
-        self.board.pieces[self.name].append(unit_class)
         self.control_token -= 1
 
 
@@ -246,6 +256,7 @@ class Unit:
         self.name = name
 
     def is_close(self, pos2, max_dif=1):
+        pos2 = (int(pos2[0]), int(pos2[1]))
         if (
             self.pos[0] + max_dif == pos2[0]
             or self.pos[0] - max_dif == pos2[0]
