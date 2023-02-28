@@ -165,7 +165,9 @@ class Player:
 
     def place(self):
         unit_to_place = self.read_unit_until_in_hand()
-        pos = read_position()
+        pos = self.read_pos_until_correct(
+            input_message="Select position to place: ", is_occupied=False
+        )
         for unit in self.units:
             if unit.name == "control":
                 if unit.is_close(pos):
@@ -197,7 +199,7 @@ class Player:
         # From position
         # TODO: Check if unit in this position
         pos_initial = self.read_pos_until_correct(
-            input_message="Select postion to move from: "
+            input_message="Select position to move from: "
         )
         # Select piece of same type
         unit_to_discard = self.read_unit_until_in_hand()
@@ -209,7 +211,7 @@ class Player:
             self.move()
         # To position
         pos_final = self.read_pos_until_correct(
-            input_message="Select postion to move to: ", is_occupied=False
+            input_message="Select position to move to: ", is_occupied=False
         )
         if unit_in_initial_pos.is_close(pos_final, diagonal=True):
             unit_in_initial_pos.pos = pos_final
@@ -225,7 +227,7 @@ class Player:
     def attack(self):
         # Position to attack from
         pos_initial = self.read_pos_until_correct(
-            input_message="Select postion to attack from: "
+            input_message="Select position to attack from: "
         )
         # Unit of same type in hand
         unit_to_attack_with = self.read_unit_until_in_hand()
@@ -237,7 +239,7 @@ class Player:
             self.attack()
         # To position
         pos_final = self.read_pos_until_correct(
-            input_message="Select postion to attack to: ", is_occupied=False
+            input_message="Select position to attack to: ", is_occupied=False
         )
         # Check if attack is posible
         if self.pre_attack_maneuver(unit_in_initial_pos, pos_final):
