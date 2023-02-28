@@ -24,7 +24,7 @@ class Warchest:
         )
         self.wolf = Player(
             "wolf",
-            [ControlZone((2, 0), "control"), Crossbowman((2,2), "crossbowman")],
+            [ControlZone((2, 0), "control"), Crossbowman((2, 2), "crossbowman")],
             {"crossbowman": 3, "knight": 3},
             {"crossbowman": Crossbowman, "knight": Knight},
             self.board,
@@ -269,7 +269,7 @@ class Player:
             # Set initiative
             self.has_initiative = True
         else:
-            print('You already have initiative')
+            print("You already have initiative")
 
     def check_if_unit_in_hand(self, unit):
         if unit in self.hand:
@@ -362,7 +362,7 @@ class Unit:
 
     def is_close(self, pos2, max_dif=1, diagonal=False):
         pos2 = (int(pos2[0]), int(pos2[1]))
-        for i in range(1, max_dif+1):
+        for i in range(1, max_dif + 1):
             if (
                 self.pos[0] + i == pos2[0]
                 or self.pos[0] - i == pos2[0]
@@ -376,9 +376,7 @@ class Unit:
             ):
                 return True
             if diagonal:
-                if (
-                    self.pos[0] + i == pos2[0] or self.pos[0] - i == pos2[0]
-                ) and (
+                if (self.pos[0] + i == pos2[0] or self.pos[0] - i == pos2[0]) and (
                     self.pos[1] + i == pos2[1] or self.pos[1] - i == pos2[1]
                 ):
                     return True
