@@ -18,15 +18,15 @@ class Warchest:
         self.crow = Player(
             "crow",
             [ControlZone((2, 4), "control")],
-            {"archer": 3, "berseker": 3},
-            {"archer": Archer, "berseker": Berseker},
+            {"archer": 3, "mercenary": 3},
+            {"archer": Archer, "mercenary": Mercenary},
             self.board,
         )
         self.wolf = Player(
             "wolf",
-            [ControlZone((2, 0), "control")],
-            {"cavalry": 3, "knight": 3},
-            {"cavalry": Cavalry, "knight": Knight},
+            [ControlZone((2, 0), "control"), Crossbowman((2,2), "crossbowman")],
+            {"crossbowman": 3, "knight": 3},
+            {"crossbowman": Crossbowman, "knight": Knight},
             self.board,
         )
         self.crow.other_player = self.wolf
@@ -41,6 +41,7 @@ class Warchest:
 
     def play(self):
         while not self.is_ended():
+            # TODO: Change only when both have played
             # TODO: Check if initiative
             # Show board
             self.board.show_board()
@@ -223,20 +224,40 @@ class Player:
 
     def attack(self):
         # Position to attack from
-        pos_initial = read_position()
+        pos_initial = self.read_pos_until_correct(
+            input_message="Select postion to attack from: "
+        )
         # Unit of same type in hand
         unit_to_attack_with = self.read_unit_until_in_hand()
+        unit_in_initial_pos = self.get_unit_by_pos(pos_initial)
+        if unit_to_attack_with != unit_in_initial_pos.name:
+            print(
+                "Unit selected not in position spectified, restarting the attack maneuver"
+            )
+            self.attack()
         # To position
-        pos_final = read_position()
+        pos_final = self.read_pos_until_correct(
+            input_message="Select postion to attack to: ", is_occupied=False
+        )
         # Check if attack is posible
-        for unit in self.hand:
-            if unit.name == unit_to_attack_with.lower():
-                if unit.attack(pos_final):
-                    # Remove from hand and add to pile
-                    self.hand.remove(unit_to_attack_with)
-                    self.discard_pile.append(unit_to_attack_with)
-                    # Remove from game attacked unit
-                    # TODO: Remove other player by checking if match position and remove from board
+        if self.pre_attack_maneuver(unit_in_initial_pos, pos_final):
+            # Remove from hand and add to pile
+            self.hand.remove(unit_to_attack_with)
+            self.discard_pile.append(unit_to_attack_with)
+            # TODO: Remove from game attacked unit
+            self.other_player.units.remove(self.has_other_unit)
+            self.has_other_unit = None
+
+    def pre_attack_maneuver(self, unit, pos):
+        # Check if other player has unit in that position
+        self.has_other_unit = self.get_unit_by_pos(pos, other=True)
+        print(self.has_other_unit)
+        # Check if unit can make that attack
+        can_attack = unit.attack(pos)
+        print(can_attack)
+        if self.has_other_unit is not None and can_attack:
+            return True
+        return False
 
     def initiative(self):
         if not self.has_initiative:
@@ -318,8 +339,13 @@ class Player:
         else:
             return False
 
-    def get_unit_by_pos(self, pos):
-        for unit in self.units:
+    def get_unit_by_pos(self, pos, other=False):
+        if other:
+            units_to_check = self.other_player.units
+        else:
+            units_to_check = self.units
+
+        for unit in units_to_check:
             if unit.pos == pos:
                 return unit
 
@@ -336,26 +362,27 @@ class Unit:
 
     def is_close(self, pos2, max_dif=1, diagonal=False):
         pos2 = (int(pos2[0]), int(pos2[1]))
-        if (
-            self.pos[0] + max_dif == pos2[0]
-            or self.pos[0] - max_dif == pos2[0]
-            and self.pos[1] == pos2[1]
-        ):
-            return True
-        if (
-            self.pos[1] + max_dif == pos2[1]
-            or self.pos[1] - max_dif == pos2[1]
-            and self.pos[0] == pos2[0]
-        ):
-            return True
-        if diagonal:
+        for i in range(1, max_dif+1):
             if (
-                self.pos[0] + max_dif == pos2[0] or self.pos[0] - max_dif == pos2[0]
-            ) and (
-                self.pos[1] + max_dif == pos2[1] or self.pos[1] - max_dif == pos2[1]
+                self.pos[0] + i == pos2[0]
+                or self.pos[0] - i == pos2[0]
+                and self.pos[1] == pos2[1]
             ):
                 return True
-        return False
+            if (
+                self.pos[1] + i == pos2[1]
+                or self.pos[1] - i == pos2[1]
+                and self.pos[0] == pos2[0]
+            ):
+                return True
+            if diagonal:
+                if (
+                    self.pos[0] + i == pos2[0] or self.pos[0] - i == pos2[0]
+                ) and (
+                    self.pos[1] + i == pos2[1] or self.pos[1] - i == pos2[1]
+                ):
+                    return True
+            return False
 
     def set_pos(self, pos):
         self.pos = pos
@@ -370,20 +397,40 @@ class Archer(Unit):
     def __init__(self, pos, name):
         super().__init__(pos, name)
 
+    def attack(self, pos):
+        if self.is_close(pos, max_dif=2, diagonal=True):
+            return True
+        return False
 
-class Berseker(Unit):
+
+class Mercenary(Unit):
     def __init__(self, pos, name):
         super().__init__(pos, name)
 
+    def attack(self, pos):
+        if self.is_close(pos, diagonal=True):
+            return True
+        return False
 
-class Cavalry(Unit):
+
+class Crossbowman(Unit):
     def __init__(self, pos, name):
         super().__init__(pos, name)
+
+    def attack(self, pos):
+        if self.is_close(pos, max_dif=2, diagonal=False):
+            return True
+        return False
 
 
 class Knight(Unit):
     def __init__(self, pos, name):
         super().__init__(pos, name)
+
+    def attack(self, pos):
+        if self.is_close(pos, diagonal=True):
+            return True
+        return False
 
 
 if __name__ == "__main__":
