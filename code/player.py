@@ -31,8 +31,12 @@ class Player:
         for (key, value) in self.bag.items():
             bag_list.extend(key for _ in range(value))
         for _ in range(3):
-            random_choice = random.choice(bag_list)
+            if "royal" in bag_list:
+                random_choice = 'royal'
+            else:
+                random_choice = random.choice(bag_list)
             self.hand.append(random_choice)
+            bag_list.remove(random_choice)
             self.bag[random_choice] -= 1
 
     def turn(self):
@@ -66,6 +70,9 @@ class Player:
 
     def place(self):
         unit_to_place = self.read_unit_until_in_hand()
+        while unit_to_place == "royal":
+            print("Royal unit can't be placed in the board")
+            unit_to_place = self.read_unit_until_in_hand()
         pos = self.read_pos_until_correct(
             input_message="Select position to place: ", is_occupied=False
         )

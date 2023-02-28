@@ -28,6 +28,10 @@ class Unit:
     def set_pos(self, pos):
         self.pos = pos
 
+class Royal(Unit):
+    def __init__(self, pos, name) -> None:
+        super().__init__(pos, name)
+
 
 class ControlZone(Unit):
     def __init__(self, pos, name) -> None:

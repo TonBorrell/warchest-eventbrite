@@ -11,15 +11,15 @@ class Warchest:
         self.crow = Player(
             "crow",
             [ControlZone((2, 4), "control")],
-            {"archer": 3, "mercenary": 3},
-            {"archer": Archer, "mercenary": Mercenary},
+            {"archer": 3, "mercenary": 3, "royal": 1},
+            {"archer": Archer, "mercenary": Mercenary, "royal": Royal},
             self.board,
         )
         self.wolf = Player(
             "wolf",
             [ControlZone((2, 0), "control"), Crossbowman((2, 2), "crossbowman")],
-            {"crossbowman": 3, "knight": 3},
-            {"crossbowman": Crossbowman, "knight": Knight},
+            {"crossbowman": 3, "knight": 3, "royal": 1},
+            {"crossbowman": Crossbowman, "knight": Knight, "royal": Royal},
             self.board,
         )
         self.crow.other_player = self.wolf
