@@ -6,17 +6,17 @@ from code.unit import *
 
 
 class Warchest:
-    def __init__(self) -> None:
+    def __init__(self, name_player_1='crow', name_player_2='wolf') -> None:
         self.board = Board()
         self.crow = Player(
-            "crow",
+            name_player_1,
             [ControlZone((2, 4), "control")],
             {"archer": 3, "mercenary": 3, "royal": 1},
             {"archer": Archer, "mercenary": Mercenary, "royal": Royal},
             self.board,
         )
         self.wolf = Player(
-            "wolf",
+            name_player_2,
             [ControlZone((2, 0), "control"), Crossbowman((2, 2), "crossbowman")],
             {"crossbowman": 3, "knight": 3, "royal": 1},
             {"crossbowman": Crossbowman, "knight": Knight, "royal": Royal},
@@ -25,12 +25,14 @@ class Warchest:
         self.crow.other_player = self.wolf
         self.wolf.other_player = self.crow
 
-        # self.current_player = self.decide_first_player()
-        self.current_player = self.crow
-        self.other_player = self.wolf
+        self.current_player, self.other_player = self.decide_first_player([self.crow, self.wolf])
 
-    def decide_first_player(self):
-        return random.choice((self.crow, self.wolf))
+    def decide_first_player(self, player_list):
+        player1 = random.choice((self.crow, self.wolf))
+        for player in player_list:
+            if player != player1:
+                player2 = player
+        return player1, player2
 
     def play(self):
         while True:

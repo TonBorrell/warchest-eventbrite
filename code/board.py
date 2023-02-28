@@ -1,5 +1,7 @@
 class Board:
-    def __init__(self) -> None:
+    def __init__(self, name_player_1='Crow', name_player_2='Wolf') -> None:
+        self.name_player_1 = name_player_1
+        self.name_player_2 = name_player_2
         self.board = ["." * 5] * 5
         self.control_areas = [(2, 0), (2, 4), (0, 1), (1, 3), (3, 1), (4, 3)]
         self.pieces = {}  # All unit class
@@ -11,8 +13,10 @@ class Board:
             print()
 
     def is_pos_active(self, pos):
-        for units_list in self.pieces.values():
+        for keys, units_list in self.pieces.items():
             for unit in units_list:
                 if unit.pos == pos:
+                    if unit.name == 'control':
+                        return keys[0].upper()
                     return unit.name[0].upper()
         return "@" if pos in self.control_areas else "."
