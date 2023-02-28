@@ -40,46 +40,54 @@ class Warchest:
         return random.choice((self.crow, self.wolf))
 
     def play(self):
-        while not self.is_ended():
-            # TODO: Change only when both have played
-            # TODO: Check if initiative
-            # Show board
-            self.board.show_board()
-            # Create Hand
-            self.current_player.create_hand()
-            # Show Hand, Recruitment units, Discard pile
-            print(self.current_player.hand)
-            print(self.current_player.bag)
-            print(self.current_player.discard_pile)
-            # Show Control Tokens
-            print(self.current_player.control_token)
-            # Input movement until no units on hand
-            while self.current_player.hand:
-                self.current_player.turn()
-                self.board.show_board()
-                print(self.current_player.hand)
-                print(self.current_player.discard_pile)
-            # Do movement
-            # Change current player
-            self.change_player()
+        while True:
+            for i in range(2):
+                if not self.is_ended():
+                    # Show board
+                    self.board.show_board()
+                    # Create Hand
+                    self.current_player.create_hand()
+                    # Show Hand, Recruitment units, Discard pile
+                    print(self.current_player.hand)
+                    print(self.current_player.bag)
+                    print(self.current_player.discard_pile)
+                    # Show Control Tokens
+                    print(self.current_player.control_token)
+                    # Input movement until no units on hand
+                    while self.current_player.hand:
+                        self.current_player.turn()
+                        self.board.show_board()
+                        print(self.current_player.hand)
+                        print(self.current_player.discard_pile)
+                    # Do movement
+                    # Change current player
+                    if i == 0:
+                        self.change_player()
+            self.change_player(check_initiatives=True)
+            
 
-    def change_player(self):
-        if self.other_player.has_initiative:
-            current = self.current_player
-            self.current_player = self.other_player
-            self.other_player = current
-            self.current_player.has_initiative = False
-            self.other_player.has_initiative = False
-        elif self.current_player.has_initiative:
-            self.current_player.has_initiative = False
+    def change_player(self, check_initiatives=False):
+        if check_initiatives:
+            if self.other_player.has_initiative:
+                current = self.current_player
+                self.current_player = self.other_player
+                self.other_player = current
+                self.current_player.has_initiative = False
+                self.other_player.has_initiative = False
+            elif self.current_player.has_initiative:
+                self.current_player.has_initiative = False
+            else:
+                current = self.current_player
+                self.current_player = self.other_player
+                self.other_player = current
         else:
             current = self.current_player
             self.current_player = self.other_player
             self.other_player = current
 
     def is_ended(self):
-        # TODO: Check if game has finished
-        pass
+        # Check for both player if control zones are equal to 3 or if no control tokens available
+        return self.current_player if self.current_player.control_token == 0 else False
 
 
 class Board:
@@ -99,9 +107,7 @@ class Board:
             for unit in units_list:
                 if unit.pos == pos:
                     return unit.name[0].upper()
-        if pos in self.control_areas:
-            return "@"
-        return "."
+        return "@" if pos in self.control_areas else "."
 
 
 class Player:
@@ -127,8 +133,7 @@ class Player:
     def create_hand(self):
         bag_list = []
         for (key, value) in self.bag.items():
-            for _ in range(value):
-                bag_list.append(key)
+            bag_list.extend(key for _ in range(value))
         for _ in range(3):
             random_choice = random.choice(bag_list)
             self.hand.append(random_choice)
@@ -169,15 +174,14 @@ class Player:
             input_message="Select position to place: ", is_occupied=False
         )
         for unit in self.units:
-            if unit.name == "control":
-                if unit.is_close(pos):
-                    # Set piece in board
-                    unit_class = self.units_dict[unit_to_place.lower()](
-                        pos, unit_to_place
-                    )
-                    self.units.append(unit_class)
-                    self.hand.remove(unit_to_place)
-                    self.discard_pile.append(unit_to_place)
+            if unit.name == "control" and unit.is_close(pos):
+                # Set piece in board
+                unit_class = self.units_dict[unit_to_place.lower()](
+                    pos, unit_to_place
+                )
+                self.units.append(unit_class)
+                self.hand.remove(unit_to_place)
+                self.discard_pile.append(unit_to_place)
 
     def control(self):
         # Unit to discard
@@ -192,8 +196,16 @@ class Player:
                 pos = read_position()
         # Control
         self.control_position(pos)
+        self.control_token -= 1
         # Discard unit
         self.hand.remove(unit)
+        # Check if control zone was controlled by other player
+        other_player_unit = self.get_unit_by_pos(pos, other=True)
+        if other_player_unit:
+            if other_player_unit.name == 'control':
+                self.other_player.units.remove(other_player_unit)
+                self.other_player.control_token += 1
+
 
     def move(self):
         # From position
@@ -251,10 +263,8 @@ class Player:
     def pre_attack_maneuver(self, unit, pos):
         # Check if other player has unit in that position
         self.has_other_unit = self.get_unit_by_pos(pos, other=True)
-        print(self.has_other_unit)
         # Check if unit can make that attack
         can_attack = unit.attack(pos)
-        print(can_attack)
         if self.has_other_unit is not None and can_attack:
             return True
         return False
@@ -272,15 +282,13 @@ class Player:
             print("You already have initiative")
 
     def check_if_unit_in_hand(self, unit):
-        if unit in self.hand:
-            return True
-        return False
+        return unit in self.hand
 
     def read_pos_until_correct(
         self, input_message="Select position to place: ", is_occupied=True
     ):  # is_occupied means that position reading is occupied by some unit, True --> Ocuppied
+        pos_correct = False
         if is_occupied:
-            pos_correct = False
             while not pos_correct:
                 pos = input(input_message)
                 pos = pos.split(",")
@@ -289,7 +297,6 @@ class Player:
                 if not pos_correct:
                     print("Position not occupied by any unit")
         else:
-            pos_correct = False
             while not pos_correct:
                 pos = input(input_message)
                 pos = pos.split(",")
@@ -333,17 +340,10 @@ class Player:
         return False
 
     def check_if_unit_in_bag(self, unit):
-        if self.bag[unit] > 0:
-            return True
-        else:
-            return False
+        return self.bag[unit] > 0
 
     def get_unit_by_pos(self, pos, other=False):
-        if other:
-            units_to_check = self.other_player.units
-        else:
-            units_to_check = self.units
-
+        units_to_check = self.other_player.units if other else self.units
         for unit in units_to_check:
             if unit.pos == pos:
                 return unit
