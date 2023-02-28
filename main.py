@@ -197,7 +197,6 @@ class Player:
 
     def move(self):
         # From position
-        # TODO: Check if unit in this position
         pos_initial = self.read_pos_until_correct(
             input_message="Select position to move from: "
         )
@@ -246,7 +245,6 @@ class Player:
             # Remove from hand and add to pile
             self.hand.remove(unit_to_attack_with)
             self.discard_pile.append(unit_to_attack_with)
-            # TODO: Remove from game attacked unit
             self.other_player.units.remove(self.has_other_unit)
             self.has_other_unit = None
 
@@ -329,7 +327,6 @@ class Player:
         return True
 
     def check_if_pos_in_control_zone(self, pos):
-        # TODO: Check if position is in control zone, control zone is a constant in the game
         for control_zone in self.board.control_areas:
             if pos == control_zone:
                 return True
