@@ -7,14 +7,14 @@ class Unit:
         pos2 = (int(pos2[0]), int(pos2[1]))
         for i in range(1, max_dif + 1):
             if (
-                self.pos[0] + i == pos2[0]
-                or self.pos[0] - i == pos2[0]
+                (self.pos[0] + i == pos2[0]
+                or self.pos[0] - i == pos2[0])
                 and self.pos[1] == pos2[1]
             ):
                 return True
             if (
-                self.pos[1] + i == pos2[1]
-                or self.pos[1] - i == pos2[1]
+                (self.pos[1] + i == pos2[1]
+                or self.pos[1] - i == pos2[1])
                 and self.pos[0] == pos2[0]
             ):
                 return True
@@ -23,7 +23,7 @@ class Unit:
                     self.pos[1] + i == pos2[1] or self.pos[1] - i == pos2[1]
                 ):
                     return True
-            return False
+        return False
 
     def set_pos(self, pos):
         self.pos = pos
