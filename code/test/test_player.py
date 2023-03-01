@@ -30,7 +30,7 @@ class PlayerTest(unittest.TestCase):
 
         self.assertEqual(self.player.hand, expected_result)
 
-    @patch("builtins.input", side_effect=["archer", "2,3"])
+    @patch("builtins.input", side_effect=["archer", "D,2"])
     def test_place(self, mock_input):
         self.player.hand = ["archer", "archer", "archer"]
         self.player.place()
@@ -44,7 +44,7 @@ class PlayerTest(unittest.TestCase):
         self.assertEqual(self.player.discard_pile, ["archer"])
         self.assertEqual(self.archer.pos, (2, 3))
 
-    @patch("builtins.input", side_effect=["archer", "2,3", "2,3", "archer", "1,3"])
+    @patch("builtins.input", side_effect=["archer", "D,2", "D,2", "archer", "D,1"])
     def test_move(self, mock_input):
         self.player.hand = ["archer", "archer", "archer"]
         self.player.place()
@@ -59,7 +59,7 @@ class PlayerTest(unittest.TestCase):
         self.assertEqual(len(self.player.units), 2)
         self.assertEqual(self.player.discard_pile, ["archer", "archer"])
 
-    @patch("builtins.input", side_effect=["archer", "2,3", "2,3", "archer", "1,3", "archer", "1,3"])
+    @patch("builtins.input", side_effect=["archer", "D,2", "D,2", "archer", "D,1", "archer", "D,1"])
     def test_control(self, mock_input):
         self.player.hand = ["archer", "archer", "archer"]
         self.player.place()
@@ -96,7 +96,7 @@ class PlayerTest(unittest.TestCase):
         self.assertEqual(self.player.discard_pile, ["archer"])
         self.assertEqual(self.player.has_initiative, True)
 
-    @patch("builtins.input", side_effect=["archer", "2,3", "2,3", "archer", "2,2"])
+    @patch("builtins.input", side_effect=["archer", "D,2", "D,2", "archer", "C,2"])
     def test_attack(self, mock_input):
         self.player.hand = ["archer", "archer", "archer"]
         self.player.place()
