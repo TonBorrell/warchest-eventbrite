@@ -9,10 +9,8 @@ from code.unit import ControlZone
 class Player:
     def __init__(self, name, units, bag, units_dict, board) -> None:
         self.name = name
-        self.units = (
-            units  # Inside this list --> tuple (Type of unit, Position of unit)
-        )
-        self.bag = {}  # Unit: n_units
+        self.units = units  # Inside this list --> Unit class
+        self.bag = {}
         self.bag = bag
         self.units_dict = units_dict
         self.has_initiative = False
@@ -27,12 +25,15 @@ class Player:
         self.other_player = other_player
 
     def create_hand(self):
+        """
+        This function creates the hand of units from the units available in the bag
+        """
         bag_list = []
-        for (key, value) in self.bag.items():
+        for key, value in self.bag.items():
             bag_list.extend(key for _ in range(value))
         for _ in range(3):
             if "royal" in bag_list:
-                random_choice = 'royal'
+                random_choice = "royal"
             else:
                 random_choice = random.choice(bag_list)
             self.hand.append(random_choice)
@@ -59,6 +60,9 @@ class Player:
             self.initiative()
 
     def read_unit_until_in_hand(self):
+        """
+        The aim of this function is to read an unit name until it is one from the hand
+        """
         unit = None
         while not self.check_if_unit_in_hand(unit):
             if unit is not None:
@@ -67,6 +71,9 @@ class Player:
         return unit
 
     def place(self):
+        """
+        Place action
+        """
         unit_to_place = self.read_unit_until_in_hand()
         while unit_to_place == "royal":
             print("Royal unit can't be placed in the board")
@@ -83,6 +90,9 @@ class Player:
                 self.discard_pile.append(unit_to_place)
 
     def control(self):
+        """
+        Control action
+        """
         # Unit to discard
         unit = self.read_unit_until_in_hand()
         # Position to control
@@ -106,6 +116,9 @@ class Player:
                     self.other_player.control_token += 1
 
     def move(self):
+        """
+        Move action
+        """
         # From position
         pos_initial = self.read_pos_until_correct(
             input_message="Select position to move from: "
@@ -115,7 +128,7 @@ class Player:
         unit_in_initial_pos = self.get_unit_by_pos(pos_initial)
         if unit_to_discard != unit_in_initial_pos.name:
             print(
-                "Unit selected not in position spectified, restarting the move maneuver"
+                "Unit selected not in position spectified, restarting the move action"
             )
             self.move()
         # To position
@@ -127,8 +140,10 @@ class Player:
             self.hand.remove(unit_in_initial_pos.name)
             self.discard_pile.append(unit_in_initial_pos.name)
 
-
     def recruit(self):
+        """
+        Recruit action
+        """
         # Select unit to recruit
         unit_to_discard = self.read_unit_until_in_hand()
         # Remove from hand and put on discard pile
@@ -136,6 +151,9 @@ class Player:
         self.discard_pile.append(unit_to_discard)
 
     def attack(self):
+        """
+        Attack action
+        """
         # Position to attack from
         pos_initial = self.read_pos_until_correct(
             input_message="Select position to attack from: "
@@ -145,7 +163,7 @@ class Player:
         unit_in_initial_pos = self.get_unit_by_pos(pos_initial)
         if unit_to_attack_with != unit_in_initial_pos.name:
             print(
-                "Unit selected not in position spectified, restarting the attack maneuver"
+                "Unit selected not in position spectified, restarting the attack action"
             )
             self.attack()
         # To position
@@ -153,14 +171,17 @@ class Player:
             input_message="Select position to attack to: ", is_occupied=False
         )
         # Check if attack is posible
-        if self.pre_attack_maneuver(unit_in_initial_pos, pos_final):
+        if self.pre_attack_action(unit_in_initial_pos, pos_final):
             # Remove from hand and add to pile
             self.hand.remove(unit_to_attack_with)
             self.discard_pile.append(unit_to_attack_with)
             self.other_player.units.remove(self.has_other_unit)
             self.has_other_unit = None
 
-    def pre_attack_maneuver(self, unit, pos):
+    def pre_attack_action(self, unit, pos):
+        """
+        Checks if the attack can be done
+        """
         # Check if other player has unit in that position
         self.has_other_unit = self.get_unit_by_pos(pos, other=True)
         # Check if unit can make that attack
@@ -170,6 +191,9 @@ class Player:
         return False
 
     def initiative(self):
+        """
+        Initiative action
+        """
         if not self.has_initiative:
             # Use unit
             unit_to_discard = self.read_unit_until_in_hand()
@@ -186,7 +210,11 @@ class Player:
 
     def read_pos_until_correct(
         self, input_message="Select position to place: ", is_occupied=True
-    ):  # is_occupied means that position reading is occupied by some unit, True --> Ocuppied
+    ):
+        """
+        The aim of this function is to read a position until it's either available or occupied,
+        depending on the boolean value is_occupied
+        """
         pos_correct = False
         if is_occupied:
             while not pos_correct:
@@ -245,6 +273,9 @@ class Player:
                 return unit
 
     def control_position(self, pos):
+        """
+        Realizes all needed in order to control a position
+        """
         unit_class = ControlZone(pos, "control")
         self.units.append(unit_class)
         self.control_token -= 1

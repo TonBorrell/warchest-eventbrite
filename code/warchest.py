@@ -6,7 +6,7 @@ from code.unit import *
 
 
 class Warchest:
-    def __init__(self, name_player_1='crow', name_player_2='wolf') -> None:
+    def __init__(self, name_player_1="crow", name_player_2="wolf") -> None:
         self.board = Board()
         self.crow = Player(
             name_player_1,
@@ -25,9 +25,14 @@ class Warchest:
         self.crow.other_player = self.wolf
         self.wolf.other_player = self.crow
 
-        self.current_player, self.other_player = self.decide_first_player([self.crow, self.wolf])
+        self.current_player, self.other_player = self.decide_first_player(
+            [self.crow, self.wolf]
+        )
 
     def decide_first_player(self, player_list):
+        """
+        The aim of this function is to decide which player is going to start the game
+        """
         player1 = random.choice((self.crow, self.wolf))
         for player in player_list:
             if player != player1:
@@ -35,6 +40,9 @@ class Warchest:
         return player1, player2
 
     def play(self):
+        """
+        Function that runs the whole game, checks if game has ended and if not changes current player
+        """
         while True:
             for i in range(2):
                 if not self.is_ended():
@@ -43,11 +51,15 @@ class Warchest:
                     # Create Hand
                     self.current_player.create_hand()
                     # Show Hand, Recruitment units, Discard pile
-                    print('Units in your hand: ', self.current_player.hand)
-                    print('Units in your bag: ', self.current_player.bag)
-                    print('Units in your discard pile: ', self.current_player.discard_pile)
+                    print("Units in your hand: ", self.current_player.hand)
+                    print("Units in your bag: ", self.current_player.bag)
+                    print(
+                        "Units in your discard pile: ", self.current_player.discard_pile
+                    )
                     # Show Control Tokens
-                    print('Control tokens remaining: ', self.current_player.control_token)
+                    print(
+                        "Control tokens remaining: ", self.current_player.control_token
+                    )
                     # Input movement until no units on hand
                     while self.current_player.hand:
                         self.current_player.turn()
@@ -59,6 +71,9 @@ class Warchest:
             self.change_player(check_initiatives=True)
 
     def change_player(self, check_initiatives=False):
+        """
+        Function to change the current player, has a boolean in order to check if player has initiative
+        """
         if check_initiatives:
             if self.other_player.has_initiative:
                 current = self.current_player
