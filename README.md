@@ -4,13 +4,13 @@ This is my proposal for the warchest assignment after applying to the Software E
 
 First of all I want to thank you for the opportunity to realize this assignment, I have enjoyed the process of coding object oriented code again.
 
-And I hope I have the opportunity to answer all the questions you may have in an interview.
+I hope I have the opportunity to answer all the questions you may have in an interview.
 
-Hope you enjoy the game! 🚀
+Hoping you enjoy the game! 🚀
 
 ## Language Decision
 
-Related to the language decision I have decided to go with **Python**, this is because Python is my main language and the one that I have worked the most. On top of that I really think that Python has a good and clear structure to work with classes and their methods.
+Related to the language decision I have decided to go with **Python**, this is because Python is my main language and the one that I have worked the most. On top of that I really think that Python has a good and clear structure to work with classes and methods.
 
 ## Code Structure
 
