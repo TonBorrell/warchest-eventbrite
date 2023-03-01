@@ -58,6 +58,8 @@ class Warchest:
                     # Change current player
                     if i == 0:
                         self.change_player()
+                else:
+                    return self.current_player.name
             self.change_player(check_initiatives=True)
 
     def change_player(self, check_initiatives=False):
