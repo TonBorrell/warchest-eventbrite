@@ -190,17 +190,13 @@ class Player:
         pos_correct = False
         if is_occupied:
             while not pos_correct:
-                pos = input(input_message)
-                pos = pos.split(",")
-                pos = (int(pos[0]), int(pos[1]))
+                pos = read_position(input_message)
                 pos_correct = self.check_if_unit_in_pos(pos)
                 if not pos_correct:
                     print("Position not occupied by any unit")
         else:
             while not pos_correct:
-                pos = input(input_message)
-                pos = pos.split(",")
-                pos = (int(pos[0]), int(pos[1]))
+                pos = read_position(input_message)
                 pos_correct = self.check_if_unit_not_in_pos(pos)
                 if not pos_correct:
                     print("Position occupied by a unit")

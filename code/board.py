@@ -5,7 +5,11 @@ class Board:
         self.pieces = {}  # All unit class
 
     def show_board(self):
+        list_rows = ['A', 'B', 'C', 'D', 'E']
+        print('    0 1 2 3 4')
+        print('    ---------')
         for i in range(5):
+            print(list_rows[i], end=' | ')
             for j in range(5):
                 print(self.is_pos_active((j, i)), end=" ")
             print()

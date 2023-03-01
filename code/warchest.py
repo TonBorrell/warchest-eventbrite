@@ -17,7 +17,7 @@ class Warchest:
         )
         self.wolf = Player(
             name_player_2,
-            [ControlZone((2, 0), "control"), Crossbowman((2, 2), "crossbowman")],
+            [ControlZone((2, 0), "control")],
             {"crossbowman": 3, "knight": 3, "royal": 1},
             {"crossbowman": Crossbowman, "knight": Knight, "royal": Royal},
             self.board,
@@ -43,19 +43,15 @@ class Warchest:
                     # Create Hand
                     self.current_player.create_hand()
                     # Show Hand, Recruitment units, Discard pile
-                    print(self.current_player.hand)
-                    print(self.current_player.bag)
-                    print(self.current_player.discard_pile)
+                    print('Units in your hand: ', self.current_player.hand)
+                    print('Units in your bag: ', self.current_player.bag)
+                    print('Units in your discard pile: ', self.current_player.discard_pile)
                     # Show Control Tokens
-                    print(self.current_player.control_token)
+                    print('Control tokens remaining: ', self.current_player.control_token)
                     # Input movement until no units on hand
                     while self.current_player.hand:
                         self.current_player.turn()
                         self.board.show_board()
-                        print(self.current_player.hand)
-                        print(self.current_player.discard_pile)
-                    # Do movement
-                    # Change current player
                     if i == 0:
                         self.change_player()
                 else:
