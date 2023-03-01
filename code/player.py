@@ -57,8 +57,6 @@ class Player:
             self.attack()
         if movement == "initiative":
             self.initiative()
-        # Check if posible
-        # Do movement
 
     def read_unit_until_in_hand(self):
         unit = None
@@ -96,15 +94,16 @@ class Player:
                 pos = read_position("Select a position occupied by you: ")
         # Control
         self.control_position(pos)
-        self.control_token -= 1
         # Discard unit
         self.hand.remove(unit)
+        self.discard_pile.append(unit)
         # Check if control zone was controlled by other player
-        other_player_unit = self.get_unit_by_pos(pos, other=True)
-        if other_player_unit:
-            if other_player_unit.name == "control":
-                self.other_player.units.remove(other_player_unit)
-                self.other_player.control_token += 1
+        if self.other_player:
+            other_player_unit = self.get_unit_by_pos(pos, other=True)
+            if other_player_unit:
+                if other_player_unit.name == "control":
+                    self.other_player.units.remove(other_player_unit)
+                    self.other_player.control_token += 1
 
     def move(self):
         # From position
@@ -126,6 +125,8 @@ class Player:
         if unit_in_initial_pos.is_close(pos_final, diagonal=True):
             unit_in_initial_pos.pos = pos_final
             self.hand.remove(unit_in_initial_pos.name)
+            self.discard_pile.append(unit_in_initial_pos.name)
+
 
     def recruit(self):
         # Select unit to recruit

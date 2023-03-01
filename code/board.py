@@ -1,7 +1,5 @@
 class Board:
-    def __init__(self, name_player_1='Crow', name_player_2='Wolf') -> None:
-        self.name_player_1 = name_player_1
-        self.name_player_2 = name_player_2
+    def __init__(self) -> None:
         self.board = ["." * 5] * 5
         self.control_areas = [(2, 0), (2, 4), (0, 1), (1, 3), (3, 1), (4, 3)]
         self.pieces = {}  # All unit class

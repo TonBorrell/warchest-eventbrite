@@ -1,6 +1,5 @@
 from code.warchest import Warchest
 
-
 if __name__ == "__main__":
     print('Welcome to the Warchest game, first of all you are going to enter the names of the 2 players')
     name_player_1 = input('Enter player 1 name: ')
